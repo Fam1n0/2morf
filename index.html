@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/konva@7.2.3/konva.min.js"></script>
+</head>
+<body>
+    <input type="file" id="inputImage1">
+    <input type="file" id="inputImage2">
+    <input type="file" id="inputImage3"> <!-- Add input for the third image -->
+    <button onclick="createCollage(3)">Create Collage</button> <!-- Modify the onclick to handle 3 images -->
+    <div id="container"></div>
+
+    <script>
+        function getRandomCoords(imgWidth, imgHeight, shapeWidth, shapeHeight) {
+            const x = Math.random() * (imgWidth - shapeWidth);
+            const y = Math.random() * (imgHeight - shapeHeight);
+            return { x, y };
+        }
+
+        function createCollage(numImages) {
+            const stage = new Konva.Stage({
+                container: 'container',
+                width: window.innerWidth,
+                height: window.innerHeight
+            });
+
+            const layer = new Konva.Layer();
+            stage.add(layer);
+
+            const images = [];
+            const readers = [];
+
+            for (let i = 1; i <= numImages; i++) {
+                const inputElement = document.getElementById(`inputImage${i}`);
+                if (inputElement) {
+                    const file = inputElement.files[0];
+                    if (file) {
+                        readers[i] = new FileReader();
+                        readers[i].onload = function (event) {
+                            const img = new Image();
+                            img.onload = function () {
+                                const shapeWidth = 100;  // Adjust as needed
+                                const shapeHeight = 100; // Adjust as needed
+
+                                const coords = getRandomCoords(stage.width(), stage.height(), shapeWidth, shapeHeight);
+
+                                const konvaImage = new Konva.Image({
+                                    x: coords.x,
+                                    y: coords.y,
+                                    image: img,
+                                    width: shapeWidth,
+                                    height: shapeHeight,
+                                });
+
+                                layer.add(konvaImage);
+                                layer.draw();
+                            };
+                            img.src = event.target.result;
+                        };
+
+                        readers[i].readAsDataURL(file);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
